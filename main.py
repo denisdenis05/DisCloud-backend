@@ -1,4 +1,7 @@
-from API_manager import exportedMainApp
+import API_manager
 
 
-exportedMainApp.run(port=5000)
+def main():
+    API_manager.exportedMainApp.run(port=5000)
+
+main()

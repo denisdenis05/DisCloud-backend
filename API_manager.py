@@ -1,8 +1,10 @@
 from flask import Flask, jsonify, request
 from flask_cors import CORS
+from database_manager import DatabaseManager
 
 mainApp = Flask(__name__)
 CORS(mainApp)
+databaseManager = DatabaseManager()
 
 
 
@@ -21,6 +23,15 @@ def test():
 
 @mainApp.route('/api/checkIfLoggedIn', methods=['GET'])
 def checkIfLoggedIn():
+    if request.method == 'GET':
+        isLoggedIn, discordToken = databaseManager.isLoggedIn()
+        dataToBeSent = {"isLoggedIn": isLoggedIn, "discordToken": discordToken}
+        return jsonify(dataToBeSent)
+    else:
+        return jsonify({"message": "Method not allowed"}), 405
+
+@mainApp.route('/api/disconnectFromDiscord', methods=['GET'])
+def disconnectFromDiscord():
     if request.method == 'GET':
         dataToBeSent = {"isLoggedIn": True, "discordToken": "kdhcscbh"}
         return jsonify(dataToBeSent)
