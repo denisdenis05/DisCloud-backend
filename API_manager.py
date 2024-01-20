@@ -43,6 +43,7 @@ def disconnectFromDiscord():
 def connectToDiscord():
     if request.method == 'POST':
         requestData = request.get_json()
+        print(requestData["token"])
         mainWorker.logIn(requestData["token"])
         dataToBeSent = {}
         return jsonify(dataToBeSent)

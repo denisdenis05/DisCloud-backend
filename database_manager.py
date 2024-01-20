@@ -10,7 +10,21 @@ class DatabaseManager:
         return self.__data["loggedIn"]
 
     def getLoginToken(self):
-        return self.__data["loginData"]["token"]
+        if "token" in self.__data["loginData"]:
+            return self.__data["loginData"]["token"]
+        return None
+
+    def getServerId(self):
+        token = self.getLoginToken()
+        if "serverId" in self.__data["loginData"][token]:
+            return self.__data["loginData"][token]["serverId"]
+        return None
+
+    def getChannelId(self):
+        token = self.getLoginToken()
+        if "channelId" in self.__data["loginData"][token]:
+            return self.__data["loginData"][token]["channelId"]
+        return None
 
     def setLoggedInStatus(self, status):
         if type(status) != bool:
@@ -20,6 +34,14 @@ class DatabaseManager:
 
     def setLoginToken(self, token):
         self.__data["loginData"]["token"] = token
+        self.__save_file()
+
+    def setServerId(self, loginToken, serverId):
+        self.__data["loginData"][loginToken]["serverId"] = serverId
+        self.__save_file()
+
+    def setChannelId(self, loginToken, channelId):
+        self.__data["loginData"][loginToken]["channelId"] = channelId
         self.__save_file()
 
     def __loadFile(self):
