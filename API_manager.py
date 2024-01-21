@@ -60,4 +60,5 @@ def login():
     else:
         return jsonify({"message": "Method not allowed"}), 405
 
+
 exportedMainApp = mainApp

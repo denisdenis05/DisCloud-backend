@@ -12,15 +12,16 @@ client = commands.Bot(command_prefix=".", help_command=None, intents=intents, ca
 @client.event
 async def on_ready():
     print(f'Logged in as {client.user.name}')
+    return
 
 
 def connectIfNecessary(botToken):
-    if client.is_closed():
-        asyncio.run(client.close())
+    if client.user is None or client.is_closed():
         runTheBot(botToken)
+        print("here")
 
 def runTheBot(botToken):
-    asyncio.run(client.run(botToken))
+    client.run(botToken)
 
 async def createChannel(serverId):
     guild = client.get_guild(serverId)

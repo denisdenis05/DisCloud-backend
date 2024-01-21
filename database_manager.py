@@ -26,6 +26,11 @@ class DatabaseManager:
             return self.__data["loginData"][token]["channelId"]
         return None
 
+    def initializeIdsIfNeeded(self, token):
+        if token not in self.__data["loginData"]:
+            self.__data["loginData"][token] = {}
+        self.__save_file()
+
     def setLoggedInStatus(self, status):
         if type(status) != bool:
             return
