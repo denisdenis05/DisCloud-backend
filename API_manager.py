@@ -62,4 +62,21 @@ def login():
         return jsonify({"message": "Method not allowed"}), 405
 
 
+@mainApp.route('/api/uploadFile', methods=['POST'])
+def uploadFile():
+    if request.method == 'POST':
+        if 'file' not in request.files:
+            return jsonify({'error': 'No file part'}), 400
+        else:
+            spooledFile = request.files['file']
+            if spooledFile.filename == '':
+                return jsonify({"error": "No selected file"}), 400
+            mainWorker.uploadFile(spooledFile)
+
+            resultData = {"receivedId": spooledFile.filename}
+            return jsonify(resultData)
+    else:
+        return jsonify({"message": "Method not allowed"}), 405
+
+
 exportedMainApp = mainApp
