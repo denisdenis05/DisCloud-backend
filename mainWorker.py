@@ -24,6 +24,12 @@ class MainWorker:
             if serverId is not None:
                 return serverId
 
+    def waitForChannelId(self):
+        while True:
+            channelId = self.__databaseManager.getChannelId()
+            if channelId is not None:
+                return channelId
+
 
     def isLoggedIn(self):
         isLoggedIn = self.__databaseManager.isLoggedIn()
@@ -36,45 +42,34 @@ class MainWorker:
         return isLoggedIn, constants.tokenPlaceholder
 
 
-    @staticmethod
-    async def runServerCreator():
-        print("Got run")
-        result = await discordManager.createServer()
+
+    async def runServerCreator(self, loginToken):
+        result_future = asyncio.run_coroutine_threadsafe(discordManager.createServer(self.__databaseManager), discordManager.discord_current_running_loop)
+        result = result_future.result()
+        self.__databaseManager.setServerId(loginToken, result)
+        return result
+
+    def runChannelCreator(self, loginToken, serverId):
+        result_future = asyncio.run_coroutine_threadsafe(discordManager.createChannel(serverId, self.__databaseManager), discordManager.discord_current_running_loop)
+        result = result_future.result()
+        self.__databaseManager.setChannelId(loginToken, result)
         return result
 
     def initializeIdsIfNeeded(self):
-        print("HERE")
         loginToken = self.__databaseManager.getLoginToken()
         self.__databaseManager.initializeIdsIfNeeded(loginToken)
         serverId = self.__databaseManager.getServerId()
-        print("HERE2")
         if serverId is None:
-            print("HERE3")
-            loop = asyncio.new_event_loop()
-            asyncio.set_event_loop(loop)
-
-            # Use asyncio.run_coroutine_threadsafe to run the async function
-            future = asyncio.run_coroutine_threadsafe(self.runServerCreator(), loop)
-
-            # Wait for the result
-            result = future.result()
-
-            # self.discord_worker_thread = threading.Thread(target=discordManager.createServer)
-            # self.discord_worker_thread.start()
+            asyncio.run(self.runServerCreator(loginToken))
             serverId = self.waitForServerId()
 
-
-            print("salut, se blocheaza aici?")
-            channelId = asyncio.run(discordManager.createChannel(serverId))
-            print(f"Server id: {serverId}, channel id: {channelId}")
-            self.__databaseManager.setServerId(loginToken, serverId)
-            self.__databaseManager.setChannelId(loginToken, channelId)
+            asyncio.run(self.runChannelCreator(loginToken, serverId))
+            channelId = self.waitForChannelId()
         else:
-            print("HERE132134567890-89876765433253647586565")
             channelId = self.__databaseManager.getChannelId()
             if channelId is None:
-                channelId = discordManager.createChannel(serverId)
-            self.__databaseManager.setChannelId(loginToken, channelId)
+                asyncio.run(self.runChannelCreator(loginToken, serverId))
+                channelId = self.waitForChannelId()
 
     def logOut(self):
         self.__databaseManager.setLoggedInStatus(False)
