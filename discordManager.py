@@ -1,4 +1,5 @@
 import asyncio
+import threading
 
 import discord
 from discord.ext import commands
@@ -6,7 +7,7 @@ from discord.ext import commands
 intents = discord.Intents.all()
 intents.members = True
 client = commands.Bot(command_prefix=".", help_command=None, intents=intents, case_insensitive=True)
-
+discord_thread = None
 
 
 @client.event
@@ -16,9 +17,11 @@ async def on_ready():
 
 
 def connectIfNecessary(botToken):
-    if client.user is None or client.is_closed():
-        runTheBot(botToken)
-        print("here")
+    global discord_thread
+    global client
+    if discord_thread is None or client.user is None or client.is_closed():
+        discord_thread = threading.Thread(target=runTheBot, args=(botToken,))
+        discord_thread.start()
 
 def runTheBot(botToken):
     client.run(botToken)
@@ -34,10 +37,18 @@ async def createChannel(serverId):
         print(f"Guild with ID {serverId} not found")
 
 async def createServer():
+    global client
     serverName = "ServerToUploadThingsTo"
+    print("Creating server: |||||| SE BLOCHEAZA AICI???")
     try:
+        print("Creating server: |||||| SE BLOCHEAZA AICI 2???")
         server = await client.create_guild(name=serverName)
+        print("Creating server: |||||| SE BLOCHEAZA AICI 3???")
         print(f"Guild '{server.name}' created with ID {server.id}")
         return server.id
     except discord.HTTPException as e:
         print(f"Error creating guild: {e}")
+
+def isConnected():
+    global client
+    return client.is_ready()

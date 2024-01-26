@@ -23,6 +23,7 @@ def test():
 
 @mainApp.route('/api/checkIfLoggedIn', methods=['GET'])
 def checkIfLoggedIn():
+    print("HEREEEEEEEEEEEEEEEEEEE")
     if request.method == 'GET':
         isLoggedIn, discordToken = mainWorker.isLoggedIn()
         dataToBeSent = {"isLoggedIn": isLoggedIn, "discordToken": discordToken}
