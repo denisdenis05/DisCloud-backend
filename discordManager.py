@@ -1,4 +1,5 @@
 import asyncio
+import tempfile
 import threading
 
 import discord
@@ -48,6 +49,18 @@ async def createServer(databaseManager):
         return server.id
     except discord.HTTPException as e:
         print(f"Error creating guild: {e}")
+
+async def sendFileMessage(channelId, spooledFile):
+    global client
+    channel = client.get_channel(channelId)
+    if channel:
+        with tempfile.NamedTemporaryFile(delete=False) as tempFile:
+            tempFile.write(spooledFile.read())
+            tempFile.seek(0)
+            message = await channel.send(file=discord.File(tempFile.name, filename="file"))
+        return message.id
+    else:
+        print(f"Channel with ID {channelId} not found")
 
 def isConnected():
     global client

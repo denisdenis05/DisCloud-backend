@@ -26,6 +26,14 @@ class DatabaseManager:
             return self.__data["loginData"][token]["channelId"]
         return None
 
+    def getAllStoredFiles(self, loginToken):
+        self.__updateData()
+        if loginToken in self.__data["loginData"]:
+            if "storedFiles" in self.__data["loginData"][loginToken]:
+                return self.__data["loginData"][loginToken]["storedFiles"]
+        return {}
+
+
     def initializeIdsIfNeeded(self, token):
         if token not in self.__data["loginData"]:
             self.__data["loginData"][token] = {}
@@ -35,6 +43,12 @@ class DatabaseManager:
         if type(status) != bool:
             return
         self.__data["loggedIn"] = status
+        self.__save_file()
+
+    def addStoredFile(self, loginToken, fileData, messageId):
+        if "storedFiles" not in self.__data["loginData"][loginToken]:
+            self.__data["loginData"][loginToken]["storedFiles"] = {}
+        self.__data["loginData"][loginToken]["storedFiles"][messageId] = fileData
         self.__save_file()
 
     def setLoginToken(self, token):
@@ -48,6 +62,10 @@ class DatabaseManager:
     def setChannelId(self, loginToken, channelId):
         self.__data["loginData"][loginToken]["channelId"] = channelId
         self.__save_file()
+
+    def __updateData(self):
+        self.__data = self.__loadFile()
+
 
     def __loadFile(self):
         try:

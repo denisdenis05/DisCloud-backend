@@ -15,7 +15,6 @@ def test():
         return jsonify(data)
     elif request.method == 'POST':
         requestData = request.get_json()
-        print(requestData)
         resultData = {"receivedData": requestData}
         return jsonify(resultData)
     else:
@@ -23,11 +22,15 @@ def test():
 
 @mainApp.route('/api/checkIfLoggedIn', methods=['GET'])
 def checkIfLoggedIn():
-    print("HEREEEEEEEEEEEEEEEEEEE")
     if request.method == 'GET':
         isLoggedIn, discordToken = mainWorker.isLoggedIn()
-        dataToBeSent = {"isLoggedIn": isLoggedIn, "discordToken": discordToken}
-        return jsonify(dataToBeSent)
+        if isLoggedIn:
+            storedFiles = mainWorker.getAllStoredFiles(discordToken)
+        else:
+            storedFiles = {}
+        dataToBeSent = {"isLoggedIn": isLoggedIn, "discordToken": discordToken, "storedFiles": storedFiles}
+        dataToBeSent = jsonify(dataToBeSent)
+        return dataToBeSent
     else:
         return jsonify({"message": "Method not allowed"}), 405
 
@@ -44,7 +47,6 @@ def disconnectFromDiscord():
 def connectToDiscord():
     if request.method == 'POST':
         requestData = request.get_json()
-        print(requestData["token"])
         mainWorker.logIn(requestData["token"])
         dataToBeSent = {}
         return jsonify(dataToBeSent)
@@ -55,7 +57,6 @@ def connectToDiscord():
 def login():
     if request.method == 'POST':
         discordId = request.get_json()
-        print(discordId)
         resultData = {"receivedId": discordId}
         return jsonify(resultData)
     else:

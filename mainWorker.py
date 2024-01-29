@@ -37,6 +37,9 @@ class MainWorker:
         return file.tell() / 1024 / 1024 <= constants.maxFileSize
 
 
+    def getAllStoredFiles(self, loginToken):
+        storedFiles = self.__databaseManager.getAllStoredFiles(loginToken)
+        return storedFiles
 
     def isLoggedIn(self):
         isLoggedIn = self.__databaseManager.isLoggedIn()
@@ -45,7 +48,7 @@ class MainWorker:
             discordManager.connectIfNecessary(discordToken)  # TODO HERE
             self.waitUntilConnected()
             self.initializeIdsIfNeeded()
-            return isLoggedIn, discordToken # make a continue function or something idk
+            return isLoggedIn, discordToken  # make a continue function or something idk
         return isLoggedIn, constants.tokenPlaceholder
 
 
@@ -61,6 +64,14 @@ class MainWorker:
         result = result_future.result()
         self.__databaseManager.setChannelId(loginToken, result)
         return result
+
+
+    @staticmethod
+    def runMessageFileSender(channelId, spooledFile):
+        result_future = asyncio.run_coroutine_threadsafe(discordManager.sendFileMessage(channelId, spooledFile), discordManager.discord_current_running_loop)
+        result = result_future.result()
+        return result
+
 
     def initializeIdsIfNeeded(self):
         loginToken = self.__databaseManager.getLoginToken()
@@ -82,7 +93,11 @@ class MainWorker:
     def uploadFile(self, spooledFile):
         spooledFile.seek(0)
         if self.checkIfFileIsGoodSize(spooledFile):
-            pass  # TODO create a thread to upload the file to discord and save message ID
+            channelId = self.__databaseManager.getChannelId()
+            messageId = self.runMessageFileSender(channelId, spooledFile)
+            fileSize = round(spooledFile.tell() / 1024 / 1024, 3)
+            fileName = spooledFile.filename
+            self.__databaseManager.addStoredFile(self.__databaseManager.getLoginToken(), [fileName, fileSize], messageId)
         # TODO else split the file in multiple files and upload them to discord as replies to each message until the file is fully uploaded
 
 
@@ -93,6 +108,6 @@ class MainWorker:
     def logIn(self, discordToken):
         self.__databaseManager.setLoggedInStatus(True)
         self.__databaseManager.setLoginToken(discordToken)
-        discordManager.connectIfNecessary(discordToken)  # TODO HERE
+        discordManager.connectIfNecessary(discordToken)
         self.initializeIdsIfNeeded()
 
