@@ -8,6 +8,10 @@
 
 <br>
 
+## You will also need the fronteend repository
+https://github.com/denisdenis05/discloud-frontend
+
+
 ## Dependencies:
 
 ### Python 3
