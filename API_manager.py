@@ -63,6 +63,17 @@ def login():
         return jsonify({"message": "Method not allowed"}), 405
 
 
+@mainApp.route('/api/deleteFile', methods=['POST'])
+def deleteFile():
+    if request.method == 'POST':
+        requestData = request.get_json()
+        print(requestData)
+        mainWorker.deleteFile(int(requestData["fileId"]))
+        dataToBeSent = {}
+        return jsonify(dataToBeSent)
+    else:
+        return jsonify({"message": "Method not allowed"}), 405
+
 @mainApp.route('/api/uploadFile', methods=['POST'])
 def uploadFile():
     if request.method == 'POST':

@@ -62,6 +62,16 @@ async def sendFileMessage(channelId, spooledFile):
     else:
         print(f"Channel with ID {channelId} not found")
 
+async def deleteMessage(channelId, messageId):
+    global client
+    channel = client.get_channel(channelId)
+    if channel:
+        message = await channel.fetch_message(messageId)
+        await message.delete()
+    else:
+        print(f"Channel with ID {channelId} not found")
+
+
 def isConnected():
     global client
     return client.is_ready()

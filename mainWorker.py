@@ -1,5 +1,4 @@
 import asyncio
-import shutil
 import threading
 from tempfile import TemporaryFile, NamedTemporaryFile
 
@@ -65,6 +64,12 @@ class MainWorker:
         self.__databaseManager.setChannelId(loginToken, result)
         return result
 
+    @staticmethod
+    def runDeleteMessage(channelId, messageId):
+        result_future = asyncio.run_coroutine_threadsafe(discordManager.deleteMessage(channelId, messageId), discordManager.discord_current_running_loop)
+        result = result_future.result()
+        return result
+
 
     @staticmethod
     def runMessageFileSender(channelId, spooledFile):
@@ -99,6 +104,12 @@ class MainWorker:
             fileName = spooledFile.filename
             self.__databaseManager.addStoredFile(self.__databaseManager.getLoginToken(), [fileName, fileSize], messageId)
         # TODO else split the file in multiple files and upload them to discord as replies to each message until the file is fully uploaded
+
+
+    def deleteFile(self, fileId):
+        channelId = self.__databaseManager.getChannelId()
+        messageId = self.runDeleteMessage(channelId, fileId)
+        self.__databaseManager.deleteStoredFile(fileId)
 
 
     def logOut(self):
