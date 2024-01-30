@@ -8,9 +8,10 @@
 
 <br>
 
-## You will also need the fronteend repository
+## You will also need the frontend repository
 https://github.com/denisdenis05/discloud-frontend
 
+<br>
 
 ## Dependencies:
 
