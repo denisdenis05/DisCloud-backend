@@ -5,7 +5,7 @@ from flask_cors import CORS
 from mainWorker import MainWorker
 
 mainApp = Flask(__name__)
-CORS(mainApp)
+CORS(mainApp, resources={r"/api/*": {"origins": "*"}}, expose_headers="Content-Disposition")
 mainWorker = MainWorker()
 
 
@@ -81,6 +81,9 @@ def downloadFile():
         )
     else:
         return jsonify({"message": "Method not allowed"}), 405
+
+
+
 
 
 @mainApp.route('/api/deleteFile', methods=['POST'])
