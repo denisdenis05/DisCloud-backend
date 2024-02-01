@@ -49,17 +49,34 @@ async def createServer(databaseManager):
     except discord.HTTPException as e:
         print(f"Error creating guild: {e}")
 
-async def sendFileMessage(channelId, spooledFile):
+async def sendFileMessage(channelId, spooledFile, previousMessageId=None):
     global client
     channel = client.get_channel(channelId)
     if channel:
         with tempfile.NamedTemporaryFile(delete=False) as tempFile:
             tempFile.write(spooledFile.read())
             tempFile.seek(0)
-            message = await channel.send(file=discord.File(tempFile.name, filename="file"))
-        return message.id
+            if previousMessageId is None:
+                newMessage = await channel.send(file=discord.File(tempFile.name, filename="file"))
+            else:
+                message = await channel.fetch_message(previousMessageId)
+                newMessage = await message.reply(file=discord.File(tempFile.name, filename="file"))
+        return newMessage.id
     else:
         print(f"Channel with ID {channelId} not found")
+
+
+async def CheckIfMessageIsReply(channelId, messageId):
+    global client
+    channel = client.get_channel(channelId)
+    if channel:
+        message = await channel.fetch_message(messageId)
+        if message.reference:
+            return message.reference.message_id
+        return None
+    else:
+        print(f"Channel with ID {channelId} not found")
+
 
 async def deleteMessage(channelId, messageId):
     global client

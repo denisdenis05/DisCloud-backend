@@ -69,10 +69,7 @@ def login():
 def downloadFile():
     if request.method == 'POST':
         requestData = request.get_json()
-        print(requestData)
         fileContent, downloadName = mainWorker.downloadFile(int(requestData["fileId"]))
-        print(downloadName)
-        print(fileContent)
         return send_file(
             io.BytesIO(fileContent),
             mimetype='application/octet-stream',
@@ -90,7 +87,6 @@ def downloadFile():
 def deleteFile():
     if request.method == 'POST':
         requestData = request.get_json()
-        print(requestData)
         mainWorker.deleteFile(int(requestData["fileId"]))
         dataToBeSent = {}
         return jsonify(dataToBeSent)
