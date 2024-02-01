@@ -70,6 +70,13 @@ class MainWorker:
         result = result_future.result()
         return result
 
+    @staticmethod
+    def runDownloadFile(channelId, messageId):
+        result_future = asyncio.run_coroutine_threadsafe(discordManager.downloadFile(channelId, messageId), discordManager.discord_current_running_loop)
+        result = result_future.result()
+        return result
+
+
 
     @staticmethod
     def runMessageFileSender(channelId, spooledFile):
@@ -111,6 +118,12 @@ class MainWorker:
         messageId = self.runDeleteMessage(channelId, fileId)
         self.__databaseManager.deleteStoredFile(fileId)
 
+    def downloadFile(self, fileId):
+        channelId = self.__databaseManager.getChannelId()
+        file = self.runDownloadFile(channelId, fileId)
+        loginToken = self.__databaseManager.getLoginToken()
+        downloadName = self.__databaseManager.getDownloadName(loginToken, fileId)
+        return file, downloadName
 
     def logOut(self):
         self.__databaseManager.setLoggedInStatus(False)

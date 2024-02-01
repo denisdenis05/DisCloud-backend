@@ -18,7 +18,6 @@ async def on_ready():
     discord_current_running_loop = asyncio.get_running_loop()
     for guild in client.guilds:
         print(f'- {guild.name} (ID: {guild.id})')
-
     return
 
 
@@ -68,6 +67,17 @@ async def deleteMessage(channelId, messageId):
     if channel:
         message = await channel.fetch_message(messageId)
         await message.delete()
+    else:
+        print(f"Channel with ID {channelId} not found")
+
+async def downloadFile(channelId, messageId):
+    global client
+    channel = client.get_channel(channelId)
+    if channel:
+        message = await channel.fetch_message(messageId)
+        attachment = message.attachments[0]
+        file_content = await attachment.read()
+        return file_content
     else:
         print(f"Channel with ID {channelId} not found")
 

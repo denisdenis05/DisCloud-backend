@@ -37,6 +37,15 @@ class DatabaseManager:
                 return self.__data["loginData"][loginToken]["storedFiles"]
         return {}
 
+    def getDownloadName(self, loginToken, fileId):
+        self.__updateData()
+        if loginToken in self.__data["loginData"]:
+            if "storedFiles" in self.__data["loginData"][loginToken]:
+                if str(fileId) in self.__data["loginData"][loginToken]["storedFiles"]:
+                    INDEX_OF_DOWNLOAD_NAME = 0
+                    return self.__data["loginData"][loginToken]["storedFiles"][str(fileId)][INDEX_OF_DOWNLOAD_NAME]
+        return None
+
 
     def initializeIdsIfNeeded(self, token):
         self.__updateData()

@@ -1,4 +1,6 @@
-from flask import Flask, jsonify, request
+import io
+
+from flask import Flask, jsonify, request, send_file
 from flask_cors import CORS
 from mainWorker import MainWorker
 
@@ -59,6 +61,24 @@ def login():
         discordId = request.get_json()
         resultData = {"receivedId": discordId}
         return jsonify(resultData)
+    else:
+        return jsonify({"message": "Method not allowed"}), 405
+
+
+@mainApp.route('/api/downloadFile', methods=['POST'])
+def downloadFile():
+    if request.method == 'POST':
+        requestData = request.get_json()
+        print(requestData)
+        fileContent, downloadName = mainWorker.downloadFile(int(requestData["fileId"]))
+        print(downloadName)
+        print(fileContent)
+        return send_file(
+            io.BytesIO(fileContent),
+            mimetype='application/octet-stream',
+            as_attachment=True,
+            download_name=downloadName
+        )
     else:
         return jsonify({"message": "Method not allowed"}), 405
 
